@@ -17,10 +17,6 @@ body {
     fill: orangered;
 }
 
-.x.axis path {
-    display: none;
-}
-
 .d3-tip {
     line-height: 1;
     font-weight: bold;
@@ -52,4 +48,19 @@ body {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
+}
+
+.partb-pop-gdp-scatter .tooltip {
+    position: absolute;
+    width: 200px;
+    height: 28px;
+    pointer-events: none;
+}
+
+.partb-pop-gdp-scatter .dot {
+    fill: blue;
+}
+
+.partb-pop-gdp-scatter .dot:hover {
+    fill: orangered;
 }
