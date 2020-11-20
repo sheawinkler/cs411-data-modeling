@@ -47,7 +47,15 @@ global.connectionPool = mysql.createPool({
 global.connectionPool.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
     if (error) {
         log(error);
-        log(chalk.red('Mysql connection error. Please make sure Mysql is running.'));
+        log(chalk.red(`
+Mysql connection error. Please make sure Mysql is running. And following step is done
+1. Create a database name 'solar_project'
+    mysql -u {USERNAME} -p # This will bring you into the MySQL shell prompt. Next, create a new database with the following command
+    mysql> CREATE DATABASE solar_project;
+    mysql> exit;
+2. unzip the ./artifacts/solar_project.zip
+3. Run 'mysql -u {USERNAME} -p solar_project < ./artifacts/solar_project.sql'    
+`));
         process.exit();
     }
 });
@@ -67,7 +75,7 @@ app.use(cors());
 
 // index page
 app.get('/', function(req, res) {
-    res.render('pages/index');
+    res.render('pages/index', {data: {}});
 });
 
 app.listen(process.env.PORT, () => {
