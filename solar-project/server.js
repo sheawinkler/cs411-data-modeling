@@ -1,14 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const mysql = require('mysql');
-const expressValidator = require('express-validator');
 const morgan = require('morgan');
 const path = require('path');
-const mongoose = require('mongoose');
 const fs = require('fs');
 const chalk = require('chalk');
 const cors = require('cors');
+const db = require('./sql_db');
+const mongo = require('./mongo');
 const app = express();
+
 
 /**
  * Load environment variables from .env file.
@@ -22,29 +21,21 @@ log(process.env.pro ? chalk.red('Production Mode') : chalk.yellow('Development M
 app.set('Secret', process.env.SECRET);
 app.set('view engine', 'ejs');
 
-/**
- * Set up mongoose connection
- */
-mongoose.connect(process.env.MONGODB_URI);
-mongoose.connection.on('error', (err) => {
-    log(err);
-    log(chalk.red('MongoDB connection error. Please make sure MongoDB is running.'));
-    process.exit();
-});
+
+let state_cache;
+async function get_mongo_conn() {
+    let conn = await mongo.conn();
+    //initalize
+    state_cache = await (new mongo.MongoCache(conn, { time_to_live: 1 })).init();
+    return conn;
+}
 
 
-/**
- * Set up mysql connection pool
- */
-global.connectionPool = mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-});
+let mongo_conn = (async () => await get_mongo_conn())();
 
-global.connectionPool.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
+
+
+db.conn.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
     if (error) {
         log(error);
         log(chalk.red(`
@@ -60,7 +51,6 @@ Mysql connection error. Please make sure Mysql is running. And following step is
     }
 });
 
-
 /**
  * log only 4xx and 5xx responses to console
  * log all requests to access.log
@@ -74,9 +64,11 @@ app.use(express.static(__dirname + '/public'));
 app.use(cors());
 
 // index page
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
+
     res.render('pages/index', {data: {}});
 });
+
 
 app.listen(process.env.PORT, () => {
     log(chalk.bold('Server is up and running on ' + process.env.BASE_URL));

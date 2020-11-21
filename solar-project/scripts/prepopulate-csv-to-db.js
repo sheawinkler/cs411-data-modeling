@@ -4,7 +4,7 @@ const csv = require('csv-parser');
 
 const { timeStamp } = require('console');
 const dset = require('../dataset_constant');
-const db = require('../db');
+const db = require('../sql_db');
 require('dotenv').config({ path: process.env.pro ? '.env' : '.env.dev' });
 
 
