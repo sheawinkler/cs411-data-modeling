@@ -1,21 +1,17 @@
-# node-momy 
-## node (vanilla js) + mongo + mysql
+# Solar Project
 
-A simple **node.js** (vanilla javascript, no typescript) boilerplate with **Mongo db** and **Mysql**.
 
-To prevent the database from becoming a system-wide bottleneck, especially in high volume environments, NoSQL databases perform in a way that relational databases cannot.
-Although NoSQL databases have gained popularity for their speed and scalability, there are still situations in which a highly structured SQL database might be preferable.
+## Getting start
 
-## Setup
-Clone or download this repo and run command in root dir
-> **npm install**
+### Set up MYSQL
 
-Configure **mongo db** and **mysql db** in **.env.dev** file
+1. Create a database name 'solar_project'
 
-**Note: Make sure mongoDB and Mysql is running.**
+```
+mysql -u {USERNAME} -p # This will bring you into the MySQL shell prompt. Next, create a new database with the following command
+  mysql> CREATE DATABASE solar_project;
+  mysql> exit;
+```
 
-Thats it.
-
-##  Run
-To start app in default development mode:
-> **npm start** 
+2. unzip the `./artifacts/solar_project.zip`
+3. Run `mysql -u {USERNAME} -p solar_project < ./artifacts/solar_project.sql`
