@@ -29,23 +29,24 @@ class MongoCache {
         console.log("Done intializing");
     }
 
-    async get(key, default_value_resolver = () => null) {
+    async get(key, default_value_resolver = async () => null) {
         let value = await this.dbo.collection(this.collection_name).findOne({
             [this.cache_key] : key
         });
         if (!value || !value.timestamp || (Date.now() - value.timestamp) > this.time_to_live) {
-            return await this.put(key, default_value_resolver());
+            let defaultVal = await default_value_resolver();
+            return await this.put(key, defaultVal);
         }
         return value;
     }
 
-    async put(key, obj) {//get_query: get to make sure object has not exist
+    async put(key, obj) {
         let newObj = {
             timestamp: Date.now(),
             [this.cache_key] : key,
-            ...obj
+            value: obj
         };
-        await this.dbo.collection(CACHE_LAYER).update({
+        await this.dbo.collection(this.collection_name).update({
             [this.cache_key] : key
         },newObj, {
             "upsert" : true  // insert a new document, if no existing document match the query 

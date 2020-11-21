@@ -1,4 +1,26 @@
 <script>
-  let i = 0;
-  console.log('test');
+  let states = <%- JSON.stringify(ejsD.state) %>; // this come from ejs
+  const INDEX_STATION_SELECT_ID = '#index-stations-select';
+  $(document).ready(function () {
+    (states || []).forEach(element => {
+      $(INDEX_STATION_SELECT_ID)
+        .append($("<option></option>")
+          .attr("value", element.code)
+          .text(element.name));
+    });
+
+    $(INDEX_STATION_SELECT_ID).on('change', function() {
+      if (!this.value) { return; }
+      $.get(`/_api/state/${this.value}/stations`, (data) => {
+        $('#index-station-display').empty();
+        (data?.stations || []).forEach(element => {
+          $('#index-station-display').append(`
+            <div>
+              <h4>${element.station_name}</h4>
+            </div>
+          `);
+        })
+      });
+    });
+  });
 </script>

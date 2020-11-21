@@ -22,11 +22,14 @@ app.set('Secret', process.env.SECRET);
 app.set('view engine', 'ejs');
 
 
-let state_cache;
+let state_station_cache, misc_cache;
 async function get_mongo_conn() {
     let conn = await mongo.conn();
-    //initalize
-    state_cache = await (new mongo.MongoCache(conn, { time_to_live: 1 })).init();
+    //initalize cache here
+    state_station_cache = await new mongo.MongoCache(conn, { mongo_collection_name: "state_station_cache", time_to_live: 50 }).init();
+    misc_cache = await new mongo.MongoCache(conn, {
+        mongo_collection_name: "misc_cache", time_to_live: 1000
+    });
     return conn;
 }
 
@@ -63,12 +66,29 @@ app.use(express.static(__dirname + '/public'));
 // allow access from any where
 app.use(cors());
 
-// index page
-app.get('/', async function(req, res) {
+function log_request(req, str) {
+    log(`${chalk.yellow(req.originalUrl)}: ${str}`)
+}
 
-    res.render('pages/index', {data: {}});
+// index page
+app.get('/', async function (req, res) {
+    log_request(req, "Request main page")
+    const STATES_CACHE_KEY = "all state in the us - unique key";
+    let getStates = async () => await db.query("SELECT * FROM state");
+    let states = await misc_cache.get(STATES_CACHE_KEY, getStates)
+    res.render('pages/index', { ejsD: { state: states.value } });
 });
 
+
+app.get('/_api/state/:state/stations', async (req, res) => {
+    if (!req.params.state) {
+        return res.status(400).send("Invalid");
+    }
+    log_request(req, `Request stations from state - ${req.params.state}`);
+    let getStations = async () => await db.query("SELECT * FROM station WHERE state=?", [req.params.state]);
+    let stations = await state_station_cache.get(req.params.state, getStations);
+    res.status(200).send({ stations: stations.value });
+});
 
 app.listen(process.env.PORT, () => {
     log(chalk.bold('Server is up and running on ' + process.env.BASE_URL));

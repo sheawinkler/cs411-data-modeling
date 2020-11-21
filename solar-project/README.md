@@ -5,6 +5,7 @@
 
 ### Set up MYSQL
 
+1. Make changes to the `.env.dev`
 1. Create a database name 'solar_project'
 
 ```
