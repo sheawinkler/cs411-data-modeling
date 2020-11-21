@@ -38,7 +38,7 @@ let mongo_conn = (async () => await get_mongo_conn())();
 
 
 
-db.conn.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
+db.conn.query('SELECT * FROM state', (error, results, fields) => {
     if (error) {
         log(error);
         log(chalk.red(`
