@@ -26,10 +26,10 @@ let state_station_cache, misc_cache;
 async function get_mongo_conn() {
     let conn = await mongo.conn();
     //initalize cache here
-    state_station_cache = await new mongo.MongoCache(conn, { mongo_collection_name: "state_station_cache", time_to_live: 50 }).init();
+    state_station_cache = await new mongo.MongoCache(conn, { mongo_collection_name: "state_station_cache", time_to_live: 1 }).init();
     misc_cache = await new mongo.MongoCache(conn, {
-        mongo_collection_name: "misc_cache", time_to_live: 1000
-    });
+        mongo_collection_name: "misc_cache", time_to_live: 1
+    }).init();
     return conn;
 }
 
@@ -38,7 +38,7 @@ let mongo_conn = (async () => await get_mongo_conn())();
 
 
 
-db.conn.query('SELECT * FROM state', (error, results, fields) => {
+db.conn.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
     if (error) {
         log(error);
         log(chalk.red(`
