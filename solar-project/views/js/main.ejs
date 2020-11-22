@@ -41,9 +41,10 @@
       elevations.push(element.elevation)
     });
 
-    var data = [{type: 'densitymapbox', lon: longitudes, lat: latitudes, elev: elevations}];
-    var layout = {width: 600, height: 400, mapbox: {style: 'stamen'}};
-    Plotly.newPlot('myDiv', data, layout);
+    var data = [{type: 'densitymapbox', lon: longitudes, lat: latitudes, z: elevations}];
+    var layout = {width: 600, height: 400, mapbox: {style: 'stamen-terrain'}};
+    var plot = Plotly.newPlot(MAP_ID, data, layout);
+    Plotly.newPlot(MAP_ID, data, layout);
 
 
   });
