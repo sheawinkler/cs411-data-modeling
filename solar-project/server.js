@@ -26,9 +26,9 @@ let state_station_cache, misc_cache;
 async function get_mongo_conn() {
     let conn = await mongo.conn();
     //initalize cache here
-    state_station_cache = await new mongo.MongoCache(conn, { mongo_collection_name: "state_station_cache", time_to_live: 1 }).init();
+    state_station_cache = await new mongo.MongoCache(conn, { mongo_collection_name: "state_station_cache", time_to_live: 50 }).init();
     misc_cache = await new mongo.MongoCache(conn, {
-        mongo_collection_name: "misc_cache", time_to_live: 1
+        mongo_collection_name: "misc_cache", time_to_live: 1000
     }).init();
     return conn;
 }
@@ -76,7 +76,27 @@ app.get('/', async function (req, res) {
     const STATES_CACHE_KEY = "all state in the us - unique key";
     let getStates = async () => await db.query("SELECT * FROM state");
     let states = await misc_cache.get(STATES_CACHE_KEY, getStates)
-    res.render('pages/index', { ejsD: { state: states.value } });
+    //res.render('pages/index', { ejsD: { state: states.value } });
+
+    let getLongs = async () => await db.query("SELECT longitude FROM station");
+    const LONG_CACHE_KEY = "all station longs";
+    let longs = await misc_cache.get(LONG_CACHE_KEY, getLongs)
+    //res.render('pages/index', { ejsLong: { longitude: longs.value } });
+
+    let getLats = async () => await db.query("SELECT latitude FROM station");
+    const LAT_CACHE_KEY = "all station lats";
+    let lats = await misc_cache.get(LAT_CACHE_KEY, getLats);
+    //res.render('pages/index', { ejsLat: { latitude: lats.value } });
+
+    let getElevs = async () => await db.query("SELECT elev FROM station");
+    const ELEV_CACHE_KEY = "all station elevations";
+    let elevs = await misc_cache.get(ELEV_CACHE_KEY, getElevs);
+    //res.render('pages/index', { ejsElev: { elevation: elev.value } });
+
+    res.render('pages/index', { ejsD: { state: states.value },
+                                ejsLong: { longitude: longs.value },
+                                ejsLat: { latitude: lats.value },
+                                ejsElev: { elevation: elevs.value } });
 });
 
 
