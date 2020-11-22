@@ -1,6 +1,10 @@
 <script>
+  let longs = <%- JSON.stringify(ejsLong.longitude) %>;
+  let lats = <%- JSON.stringify(ejsLat.latitude) %>;
+  let elevs = <%- JSON.stringify(ejsElev.elevation) %>;
   let states = <%- JSON.stringify(ejsD.state) %>; // this come from ejs
   const INDEX_STATION_SELECT_ID = '#index-stations-select';
+  const MAP_ID = '#map'
   $(document).ready(function () {
     (states || []).forEach(element => {
       $(INDEX_STATION_SELECT_ID)
@@ -8,6 +12,7 @@
           .attr("value", element.code)
           .text(element.name));
     });
+    
 
     $(INDEX_STATION_SELECT_ID).on('change', function() {
       if (!this.value) { return; }
@@ -22,5 +27,24 @@
         })
       });
     });
+    
+    var longitudes = []
+    (longs || []).foreach(element => {
+      longitudes.push(element.longitude)
+    });
+    var latitudes = []
+    (lats || []).foreach(element => {
+      latitudes.push(element.latitude)
+    });
+    var elevations = []
+    (elevs || []).foreach(element => {
+      elevations.push(element.elevation)
+    });
+
+    var data = [{type: 'densitymapbox', lon: longitudes, lat: latitudes, elev: elevations}];
+    var layout = {width: 600, height: 400, mapbox: {style: 'stamen'}};
+    Plotly.newPlot('myDiv', data, layout);
+
+
   });
 </script>
